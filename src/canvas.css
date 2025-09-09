@@ -1,0 +1,85 @@
+body {
+    margin: 0;
+    padding: 0;
+    scroll-behavior: unset;
+}
+
+.app {
+    display: flex;
+    flex-direction: row;
+    gap: 250px;
+    margin-top: 20px;
+    width: 100vw;
+
+}
+
+.canvas {
+    border: 1px solid var(--border-neutral-subtle);
+    z-index: 2;
+    display: flex;
+    /* margin-top: 150px; */
+
+}
+
+.toolbars-wrapper {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+}
+
+.toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background-color: var(--background-neutral-container);
+    padding: 8px 8px;
+    border-radius: 8px;
+    height: auto;
+    align-self: flex-start;
+    margin-left: 20px;
+    margin-top: 200px;
+
+
+}
+
+.shapes-toolbar {
+    display: grid;
+    position: fixed;
+    top: 200px;
+    left: 80px;
+    z-index: 10;
+    gap: 8px;
+    background-color: var(--background-neutral-container);
+    padding: 8px 8px;
+    border-radius: 8px;
+    height: auto;
+    align-self: flex-start;
+    margin-left: 20px;
+    margin-top: 200px;
+
+
+}
+
+
+
+.settings {
+    display: flex;
+    position: fixed;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    gap: 8px;
+    flex-direction: column;
+    background-color: var(--background-neutral-container);
+    padding: 24px 8px;
+    border-radius: 4px;
+    text-align: left;
+
+
+}
+
+.add-new-canvas {
+    position: fixed;
+    right: 150px;
+    background-color: var(--background-neutral-container);
+}

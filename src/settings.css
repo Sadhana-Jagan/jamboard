@@ -1,0 +1,124 @@
+.settings-pane{
+  display: flex;
+  position: absolute;
+  top:50%;
+  transform: translate(var(--panel-x, 0px), var(--panel-y, 0px));
+  gap:13px;
+  flex-direction: column;
+  background-color: var(--background-neutral-container);
+  padding: 24px 8px;
+  border-radius: 4px;
+  text-align: left;
+  transition: transform 0.05s linear;
+  z-index: 9999;
+}
+
+.width-container{
+  border: 1px solid white;
+  border-radius: 5px;
+
+  /* width: 100%;
+  height: 100%; */
+}
+
+.height-container{
+  border: 1px solid #ffffff;
+  border-radius: 5px;
+
+}
+
+.radius-container{
+  border: 1px solid #ffffff;
+  border-radius: 5px;
+}
+
+.color-container{
+  border: 1px solid white;
+  border-radius: 5px;
+  height: 100%;
+  width: 100%;
+}
+
+.color{
+  height: 35px;
+  width: 167px;
+}
+
+.fontType-container{
+  border: 1px solid white;
+  border-radius: 5px;
+  
+}
+
+.fontType-container p,select{
+  margin-left: 4px;
+}
+
+.fontType-container select{
+  background: transparent;
+  appearance: none;
+  border:none;
+  font-size: medium;
+
+}
+
+.fontSize-container {
+  border: 1px solid white;
+  border-radius: 5px;
+  height: 100%;
+  width: 100%;
+}
+
+.fontSize-container input{
+  width: 45px;
+  margin-bottom: 5px;
+}
+
+.fontSize-container p,button{
+  margin-left: 4px;
+}
+
+.fontSize-adjuster {
+  display: flex;
+  flex-direction: row;
+  gap:5px;
+  justify-content:space-between;
+
+}
+
+.fontSize-adjuster button {
+  font-size:x-large;
+}
+
+.fontSize-adjuster input {
+  text-align: center;
+  border:none;
+  font-size: large;
+  justify-content: center;
+  line-height: normal;
+  vertical-align: middle;
+  /* height: 32px; */
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Remove arrows in Firefox
+input[type=number] {
+  -moz-appearance: textfield;
+} */
+
+.fontStyle-container{
+  width: 100%;
+  height: 100%;
+  border: 1px solid white;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  margin-top: 5px;
+
+}

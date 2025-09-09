@@ -1,0 +1,13 @@
+.canvas-settings-panel{
+  display: flex;
+  position: fixed;
+  right: 16px;
+  top:80%;
+  transform: translateY(-50%);
+  gap:8px;
+  flex-direction: column;
+  background-color: var(--background-neutral-container);
+  padding: 24px 8px;
+  border-radius: 4px;
+  text-align: left;
+}
