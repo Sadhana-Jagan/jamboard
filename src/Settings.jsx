@@ -3,16 +3,21 @@ import { Input } from "blocksin-system"
 import "./settings.css"
 import { RiUnderline, RiBold, RiStrikethrough, RiItalic } from 'react-icons/ri';
 import { FaPlus, FaMinus } from 'react-icons/fa';
-import { throttle } from "lodash"
+import { util } from "fabric";
+
 
 const wsUrl = import.meta.env.VITE_WEBSOCKET_URL;
 
+
+export const getImageUrl = (url64bit)=>{
+
+}
 
 export default function Settings({ canvas }) {
     const wsRef = useRef(null)
 
     const [selectedObject, setSelectedObject] = useState(null)
-    const [color, setColor] = useState("")
+    const [color, setColor] = useState("#000000")
     //for rectangle and triangle
     const [width, setWidth] = useState("")
     const [height, setHeight] = useState("")
@@ -119,19 +124,22 @@ export default function Settings({ canvas }) {
         }
         canvas.on("object:added", () => {
             sendMessage()
+            // else return
+
         })
         canvas.on("object:removed", () => {
-            sendMessage()
+            // sendMessage()
         })
         canvas.on("object:modified", () => {
             sendMessage()
         })
         canvas.on("object:moving", (e) => {
             handleMove(e)
-            sendMessageThrottled()
+            // sendMessageThrottled()
         })
         canvas.on("object:scaling", (e) => {
             handleScaling(e.target)
+            // sendMessage()
             // sendMessageThrottled()
         })
         canvas.on("object:rotating", () => {
@@ -148,7 +156,7 @@ export default function Settings({ canvas }) {
 
     }, [canvas, selectedObject])
 
-    
+
     useEffect(() => {
         // if(!canvas){
         //     return 
@@ -161,40 +169,98 @@ export default function Settings({ canvas }) {
         }
 
         wsRef.current = ws;
+        // if (!wsRef.current) return;  
+        if (!canvas) return;
 
         //server pushing data to client 
-        
+
         return () => {
             //connection close
             ws.close();
         };
     }, [])
 
-    //receive objects/broadcasted msg
-    useEffect(()=>{
+    useEffect(() => {
         wsRef.current.onmessage = (event) => {
             let dataParsed
+            // console.log("inside onmessage");
             try {
                 dataParsed = JSON.parse(event.data)
-                
             } catch (err) {
                 console.log("error parsing json")
                 return
             }
             const canvasDataJson = dataParsed.data.message
             console.log(canvasDataJson)
-            console.log(typeof(canvasDataJson))
+
             if (canvas) {
-                console.log("entered the condition")
-                canvas.clear()
-                canvas.loadFromJSON(canvasDataJson, () => {
-                    canvas.renderAll();
-                });
+                // console.log("entered the condition")
+                canvas.off("object:added")
+                // canvas.off("object:modified")
+                // canvas.off("object:scaling")
+
+
+                canvas.loadFromJSON(canvasDataJson).then(() => { canvas.renderAll() })
+                // canvas.loadFromJSON(canvasDataJson, canvas.renderAll.bind(canvas));
+
+
+                // canvas.loadFromJSON(canvasDataJson, () => {
+                //     canvas.renderAll();
+                //     console.log("✅ All objects (including images) loaded and rendered");
+                // });
+                canvas.on("object:added");
+                // canvas.on("object:modified");
+                // canvas.on("object:scaling")
                 return
             }
 
         }
-    },[canvas])
+    }, [canvas])
+
+    //receive objects/broadcasted msg
+    // useEffect(() => {
+
+    // }, [])
+
+
+    // const canvasRef = useRef(null);
+    // useEffect(() => {
+    //     // store the latest canvas in a ref so the handler can use it
+    //     canvasRef.current = canvas;
+    // }, [canvas]);
+    // const remoteSendRef = useRef(false);
+
+    // useEffect(() => {
+    //     // create socket once
+    //     const ws = new WebSocket(wsUrl);
+    //     wsRef.current = ws;
+
+    //     ws.onopen = () => console.log("connection opened");
+
+    //     ws.onmessage = (event) => {
+    //         const c = canvasRef.current;   // always the latest canvas
+    //         if (!c) return;
+
+    //         let dataParsed;
+    //         try {
+    //             dataParsed = JSON.parse(event.data);
+    //         } catch {
+    //             console.log("error parsing json");
+    //             return;
+    //         }
+
+    //         remoteSendRef.current = true;
+    //         c.clear();
+    //         c.loadFromJSON(dataParsed.data.message, () => {
+    //             remoteSendRef.current = false;
+    //             c.renderAll();
+    //         });
+    //     };
+
+    //     return () => ws.close();
+    // }, [])
+
+
 
 
 
@@ -205,8 +271,10 @@ export default function Settings({ canvas }) {
     const sendMessage = () => {
         const canvasJson = canvas.toJSON()
         console.log("sending message")
+        // console.log(canvasJson)
         const jsonToSend = { "action": "sendMessage", "message": canvasJson }
         wsRef.current?.send(JSON.stringify(jsonToSend))
+        // console.log(jsonToSend)
         console.log("sent")
     }
 
@@ -256,8 +324,9 @@ export default function Settings({ canvas }) {
 
     const handleWidthChange = (e) => {
         const value = e.target.value.replace(/,/g, "")
+
         const intValue = parseInt(value, 10)
-        setWidth(intValue)
+        setWidth(intValue / selectedObject.scaleX)
         if (selectedObject && selectedObject.type === "rect" && intValue >= 0) {
             selectedObject.set({ width: intValue / selectedObject.scaleX })
             canvas.renderAll()
@@ -266,11 +335,12 @@ export default function Settings({ canvas }) {
             selectedObject.set({ width: intValue / selectedObject.scaleX })
             canvas.renderAll()
         }
+        canvas.fire('object:modified')
     }
     const handleHeightChange = (e) => {
         const value = e.target.value.replace(/,/g, "")
         const intValue = parseInt(value, 10)
-        setHeight(intValue)
+        setHeight(intValue / selectedObject.scaleY)
         if (selectedObject && selectedObject.type === "rect" && intValue >= 0) {
             selectedObject.set({ height: intValue / selectedObject.scaleY })
             canvas.renderAll()
@@ -279,15 +349,17 @@ export default function Settings({ canvas }) {
             selectedObject.set({ height: intValue / selectedObject.scaleY })
             canvas.renderAll()
         }
+        canvas.fire('object:modified')
     }
     const handleRadiusChange = (e) => {
         const value = e.target.value.replace(/,/g, "")
         const intValue = parseInt(value, 10)
-        setRadius(intValue)
+        setRadius(intValue / selectedObject.scaleX)
         if (selectedObject && selectedObject.type === "circle" && intValue >= 0) {
             selectedObject.set({ radius: intValue / selectedObject.scaleX })
             canvas.renderAll()
         }
+        canvas.fire('object:modified')
     }
 
     const handleLineChange = (e) => {
@@ -295,19 +367,22 @@ export default function Settings({ canvas }) {
         const intValue = parseInt(value, 10)
 
 
-        setLength(intValue)
+        setLength(intValue / selectedObject.scaleX)
         if (selectedObject && selectedObject.type === "rect" && intValue >= 0) {
             selectedObject.set({ width: intValue / selectedObject.scaleX })
             canvas.renderAll()
         }
+        canvas.fire('object:modified')
     }
     const handleTextColorChange = (e) => {
         const color = e.target.value
         setColor(color)
         if (selectedObject) {
             selectedObject.setSelectionStyles({ fill: color })
+            canvas.fire('object:modified')
             canvas.renderAll()
         }
+
     }
 
     const handleColorChange = (e) => {
@@ -315,8 +390,10 @@ export default function Settings({ canvas }) {
         setColor(color)
         if (selectedObject) {
             selectedObject.set({ fill: color })
+            canvas.fire('object:modified')
             canvas.renderAll()
         }
+
     }
 
     const handleFontChange = (e) => {
@@ -324,22 +401,27 @@ export default function Settings({ canvas }) {
         setFont(fontStyle)
         if (selectedObject) {
             selectedObject.setSelectionStyles({ fontFamily: fontStyle })
+            canvas.fire('object:modified')
         }
         canvas.requestRenderAll()
+
     }
 
     const decreaseFontSize = () => {
         setFontSize(prev => Math.max(1, prev - 1))
         if (selectedObject) {
             selectedObject.setSelectionStyles({ fontSize: fontSize })
+            canvas.fire('object:modified')
         }
         canvas.requestRenderAll()
+
     }
 
     const increaseFontSize = () => {
         setFontSize(prev => prev + 1)
         if (selectedObject) {
             selectedObject.setSelectionStyles({ fontSize: fontSize })
+            canvas.fire('object:modified')
         }
         canvas.requestRenderAll()
 
@@ -350,6 +432,7 @@ export default function Settings({ canvas }) {
         setFontSize(fontsize)
         if (selectedObject) {
             selectedObject.setSelectionStyles({ fontSize: fontsize })
+            canvas.fire('object:modified')
         }
         canvas.requestRenderAll()
     }
@@ -359,6 +442,7 @@ export default function Settings({ canvas }) {
         setBold(prev => !prev)
         if (selectedObject) {
             selectedObject.setSelectionStyles({ fontWeight: opt ? "bold" : "normal" })
+            canvas.fire('object:modified')
         }
         canvas.requestRenderAll()
     }
@@ -368,6 +452,7 @@ export default function Settings({ canvas }) {
         setUnderline(prev => !prev)
         if (selectedObject) {
             selectedObject.setSelectionStyles({ underline: opt ? true : false })
+            canvas.fire('object:modified')
         }
         canvas.requestRenderAll()
     }
@@ -377,6 +462,7 @@ export default function Settings({ canvas }) {
         setItalics(prev => !prev)
         if (selectedObject) {
             selectedObject.setSelectionStyles({ fontStyle: opt ? "italic" : "normal" })
+            canvas.fire('object:modified')
         }
         canvas.requestRenderAll()
     }
@@ -386,6 +472,7 @@ export default function Settings({ canvas }) {
         setStrike(prev => !prev)
         if (selectedObject) {
             selectedObject.setSelectionStyles({ linethrough: opt ? true : false })
+            canvas.fire('object:modified')
         }
         canvas.requestRenderAll()
     }

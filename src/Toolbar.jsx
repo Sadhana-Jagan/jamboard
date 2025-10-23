@@ -7,6 +7,33 @@ import { useFilePicker } from "use-file-picker"
 
 
 
+const handleImageUpload = (e,canvas) => {
+        const file = e.target.files[0]
+        if (!file) {
+            return
+        }
+        const reader = new FileReader()
+        reader.onload = (event) => {
+            const imageUrl = event.target.result;    // base64 image
+            FabricImage.fromURL(imageUrl).then((img) => {
+                img.set({
+                    left: 100,
+                    top: 100,
+                    selectable: true,
+                });
+                img.scaleToWidth(150); // Resize image
+                canvas.add(img); // Add to canvas
+                // canvas.fire('object:added')
+                canvas.setActiveObject(img);
+                canvas.requestRenderAll();
+               
+            });
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+
 const addShape = (shape, canvas) => {
     if (canvas) {
         switch (shape) {
@@ -106,31 +133,7 @@ export default function Toolbar({ canvas }) {
     }
 
 
-    const handleImageUpload = (e) => {
-        const file = e.target.files[0]
-        if (!file) {
-            return
-        }
-        const reader = new FileReader()
-        reader.onload = (event) => {
-            const imageUrl = event.target.result; // base64 image
-
-            FabricImage.fromURL(imageUrl).then((img) => {
-                img.set({
-                    left: 100,
-                    top: 100,
-                    selectable: true,
-                });
-                img.scaleToWidth(150); // Resize image
-                canvas.add(img); // Add to canvas
-                canvas.setActiveObject(img);
-                canvas.renderAll();
-               
-            });
-        };
-
-        reader.readAsDataURL(file);
-    }
+    
 
 
     //     const [filesContent, errors, openFileSelector, loading] = useFilePicker({
@@ -172,7 +175,7 @@ export default function Toolbar({ canvas }) {
                     accept="image/*"
                     id="imageUpload"
                     style={{ display: "none" }}
-                    onChange={handleImageUpload}
+                    onChange={(e)=>handleImageUpload(e,canvas)}
                 />
                 <IconButton variant="ghost" size="medium" >
                     <label htmlFor="imageUpload">
