@@ -3,35 +3,63 @@ import { Canvas, Circle, FabricImage, IText, Line, Rect, Textbox, Triangle } fro
 import { IconButton } from "blocksin-system"
 import { CircleIcon, SquareIcon, TriangleIcon, TextIcon, ImageIcon, LineHeightIcon, BorderSolidIcon, SlashIcon, ArrowRightIcon } from "sebikostudio-icons"
 import { useEffect, useState } from "react"
-import { useFilePicker } from "use-file-picker"
+import { S3Client } from "@aws-sdk/client-s3";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+
+const accessKeyId = import.meta.env.VITE_AWS_ACCESS_KEY_ID;
+const secretAccessKey = import.meta.env.VITE_AWS_SECRET_ACCESS_KEY;
+const region = import.meta.env.VITE_AWS_REGION;
+const bucketName = import.meta.env.VITE_S3_BUCKET_NAME;
 
 
+const handleImageUpload = async (e, canvas) => {
+    const file = e?.target?.files?.[0]
+    console.log("Selected file:", file);
+    if (!file) return
 
-const handleImageUpload = (e,canvas) => {
-        const file = e.target.files[0]
-        if (!file) {
-            return
-        }
-        const reader = new FileReader()
-        reader.onload = (event) => {
-            const imageUrl = event.target.result;    // base64 image
-            FabricImage.fromURL(imageUrl).then((img) => {
-                img.set({
-                    left: 100,
-                    top: 100,
-                    selectable: true,
-                });
-                img.scaleToWidth(150); // Resize image
-                canvas.add(img); // Add to canvas
-                // canvas.fire('object:added')
-                canvas.setActiveObject(img);
-                canvas.requestRenderAll();
-               
+    const client = new S3Client({
+        region: region,
+        requestChecksumsCalculated: "WHEN_REQUIRED",
+        credentials: {
+            accessKeyId: accessKeyId,
+            secretAccessKey: secretAccessKey,
+        },
+    });
+
+    const arrayBuffer = await file.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
+
+    const uploadParams = {
+        Bucket: bucketName,
+        Key: `${Date.now()}_${file.name}`,
+        Body: uint8Array,
+        ContentType: file.type,
+        ACL: 'public-read',
+    };
+
+    try {
+        const command = new PutObjectCommand(uploadParams);
+        const response = await client.send(command);
+        console.log("Upload response:", response);
+
+        const publicUrl = `https://${bucketName}.s3.${region}.amazonaws.com/${uploadParams.Key}`;
+        console.log("Public URL:", publicUrl);
+
+        FabricImage.fromURL(publicUrl).then((img) => {
+            img.set({
+                left: 100,
+                top: 100,
+                selectable: true,
             });
-        };
-
-        reader.readAsDataURL(file);
+            img.scaleToWidth(150); // Resize image
+            canvas.add(img); // Add to canvas
+            canvas.setActiveObject(img);
+            canvas.requestRenderAll();
+        });
+    } catch (err) {
+        console.error("S3 upload failed:", err?.name ?? err, err?.message ?? err);
     }
+}
 
 
 const addShape = (shape, canvas) => {
