@@ -4,34 +4,65 @@ import { IconButton } from "blocksin-system"
 import { CircleIcon, SquareIcon, TriangleIcon, TextIcon, ImageIcon, LineHeightIcon, BorderSolidIcon, SlashIcon, ArrowRightIcon } from "sebikostudio-icons"
 import { useEffect, useState } from "react"
 import { useFilePicker } from "use-file-picker"
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 
 
-const handleImageUpload = (e,canvas) => {
-        const file = e.target.files[0]
-        if (!file) {
+const client = new S3Client({
+    region: import.meta.env.VITE_AWS_REGION,
+    credentials: {
+        accessKeyId: import.meta.env.VITE_AWS_ACCESS_KEY_ID,
+        secretAccessKey: import.meta.env.VITE_AWS_ACCESS_KEY,
+    },
+});
+
+const handleImageUpload = (e, canvas) => {
+    const file = e.target.files[0]
+    // console.log("file:",file)
+    if (!file) {
+        return
+    }
+    const reader = new FileReader()
+    reader.onload = async (event) => {
+        const imageUrl = event.target.result;    // base64 image
+        
+        const keyS3 = `${Date.now()}_${file.name}`
+        const arrayBuffer = await file.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
+        console.log(uint8Array)
+        const jsonS3 = {
+            ACL: "public-read",
+            Body: uint8Array,
+            Bucket: "jamboard-images-bucket",
+            Key: keyS3
+
+        }
+        const command = new PutObjectCommand(jsonS3)
+        const s3response = await client.send(command)
+        if (!s3response) {
+            console.log("image not uploaded successfully");
             return
         }
-        const reader = new FileReader()
-        reader.onload = (event) => {
-            const imageUrl = event.target.result;    // base64 image
-            FabricImage.fromURL(imageUrl).then((img) => {
-                img.set({
-                    left: 100,
-                    top: 100,
-                    selectable: true,
-                });
-                img.scaleToWidth(150); // Resize image
-                canvas.add(img); // Add to canvas
-                // canvas.fire('object:added')
-                canvas.setActiveObject(img);
-                canvas.requestRenderAll();
-               
+        console.log("uploaded to s3");
+        const publicUrl = `https://jamboard-images-bucket.s3.${import.meta.env.VITE_AWS_REGION}.amazonaws.com/${jsonS3.Key}`
+        FabricImage.fromURL(publicUrl).then((img) => {
+            img.set({
+                left: 100,
+                top: 100,
+                selectable: true,
             });
-        };
+            img.scaleToWidth(150); // Resize image
+            canvas.add(img); // Add to canvas
 
-        reader.readAsDataURL(file);
-    }
+            // canvas.fire('object:added')
+            //canvas.setActiveObject(img);
+            canvas.requestRenderAll();
+
+        });
+    };
+
+    reader.readAsDataURL(file);
+}
 
 
 const addShape = (shape, canvas) => {
@@ -128,12 +159,15 @@ const addShape = (shape, canvas) => {
 
 export default function Toolbar({ canvas }) {
     const [showShapes, setShowShapes] = useState(false)
+
+
+
     const handleShowShapes = () => {
         setShowShapes(prev => !prev)
     }
 
 
-    
+
 
 
     //     const [filesContent, errors, openFileSelector, loading] = useFilePicker({
@@ -175,7 +209,7 @@ export default function Toolbar({ canvas }) {
                     accept="image/*"
                     id="imageUpload"
                     style={{ display: "none" }}
-                    onChange={(e)=>handleImageUpload(e,canvas)}
+                    onChange={(e) => handleImageUpload(e, canvas)}
                 />
                 <IconButton variant="ghost" size="medium" >
                     <label htmlFor="imageUpload">

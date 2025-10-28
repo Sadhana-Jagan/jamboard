@@ -10,9 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.917.0",
     "blocksin-system": "^1.6.3",
     "fabric": "^6.7.1",
     "ffmpeg": "^0.0.4",
+    "fs": "^0.0.1-security",
+    "fs-extra": "^11.3.2",
     "lodash": "^4.17.21",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
