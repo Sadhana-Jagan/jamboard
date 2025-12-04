@@ -4,14 +4,11 @@ import "./settings.css"
 import { RiUnderline, RiBold, RiStrikethrough, RiItalic } from 'react-icons/ri';
 import { FaPlus, FaMinus } from 'react-icons/fa';
 import { util } from "fabric";
+import { userStore } from "./EmailStore";
 
 
 const wsUrl = import.meta.env.VITE_WEBSOCKET_URL;
 
-
-export const getImageUrl = (url64bit)=>{
-
-}
 
 export default function Settings({ canvas }) {
     const wsRef = useRef(null)
@@ -34,6 +31,13 @@ export default function Settings({ canvas }) {
     const [italics, setItalics] = useState(false)
     const [strike, setStrike] = useState(false)
 
+    const userEmail = userStore(store=>store.userDetail.emailID)
+    const userSub = userStore(store=>store.userDetail.subID)
+    const username = userStore(store=>store.userDetail.username)
+    console.log("email: ",userEmail)
+    console.log("sub: ",userSub)
+    console.log("username: ",username)
+    
 
 
     const updatePanelPosition = (object) => {
@@ -217,57 +221,6 @@ export default function Settings({ canvas }) {
         }
     }, [canvas])
 
-    //receive objects/broadcasted msg
-    // useEffect(() => {
-
-    // }, [])
-
-
-    // const canvasRef = useRef(null);
-    // useEffect(() => {
-    //     // store the latest canvas in a ref so the handler can use it
-    //     canvasRef.current = canvas;
-    // }, [canvas]);
-    // const remoteSendRef = useRef(false);
-
-    // useEffect(() => {
-    //     // create socket once
-    //     const ws = new WebSocket(wsUrl);
-    //     wsRef.current = ws;
-
-    //     ws.onopen = () => console.log("connection opened");
-
-    //     ws.onmessage = (event) => {
-    //         const c = canvasRef.current;   // always the latest canvas
-    //         if (!c) return;
-
-    //         let dataParsed;
-    //         try {
-    //             dataParsed = JSON.parse(event.data);
-    //         } catch {
-    //             console.log("error parsing json");
-    //             return;
-    //         }
-
-    //         remoteSendRef.current = true;
-    //         c.clear();
-    //         c.loadFromJSON(dataParsed.data.message, () => {
-    //             remoteSendRef.current = false;
-    //             c.renderAll();
-    //         });
-    //     };
-
-    //     return () => ws.close();
-    // }, [])
-
-
-
-
-
-
-
-
-
     const sendMessage = () => {
         const canvasJson = canvas.toJSON()
         console.log("sending message")
@@ -277,11 +230,6 @@ export default function Settings({ canvas }) {
         // console.log(jsonToSend)
         console.log("sent")
     }
-
-    // const sendMessageThrottled = useMemo(
-    //     () => throttle(() => sendMessage(), 200), // max every 200ms
-    //     [canvas]
-    // );
 
 
 

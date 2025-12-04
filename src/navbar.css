@@ -32,11 +32,21 @@ body{
 .profile-pic{
     margin-left: auto;
     margin-top: 23px;
+    
+    display: flex;
+    flex-direction: row;
+    gap:20px;
 }
 
 .profile-pic-img{
-    
     width: 35px;
     height: 35px;
     padding-right: 30px;
+}
+
+.center-p{
+    text-align: center;
+    line-height: 33px;
+    font-size: large;
+    font-weight: 600;
 }
