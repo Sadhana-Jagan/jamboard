@@ -1,10 +1,4 @@
-import { IconButton } from "blocksin-system"
-import CanvasBoard from "./Canvas"
-import { use, useEffect, useState, useRef } from "react"
-import { PlusIcon, PenIcon, BoxIcon } from "sebikostudio-icons"
-import NavBar from "./NavBar"
 import "./App.css"
-import CanvasListComponent from "./CanvasList"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AuthCallback from "./Authcallback"
 import JamboardHome from "./JamboardHome"

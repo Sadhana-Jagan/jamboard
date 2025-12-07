@@ -100,19 +100,6 @@ const addShape = (shape, canvas) => {
                 canvas.add(triangle)
                 break
             case "line":
-                // const line = new Rect([50, 100, 200, 100], {
-                //     stroke: 'black',
-                //     strokeWidth: 3,
-                //     selectable:true,
-                //     evented:true,
-                //     // perPixelTargetFind:false,
-                //     // objectCaching:false,
-                //     originX:'center',
-                //     originY:'center',
-                //     hasBorders:false,
-                //     // lockScalingY: true,
-                //     hasControls: false,
-                // })
                 const line = new Rect({
                     top: 100,
                     left: 50,
@@ -160,40 +147,9 @@ const addShape = (shape, canvas) => {
 export default function Toolbar({ canvas }) {
     const [showShapes, setShowShapes] = useState(false)
 
-
-
     const handleShowShapes = () => {
         setShowShapes(prev => !prev)
     }
-
-
-
-
-
-    //     const [filesContent, errors, openFileSelector, loading] = useFilePicker({
-    //   accept: ["image/*"],
-    //   multiple: false,
-    //   readAs: "DataURL", // get base64
-    // });
-
-    //     // if (!canvas || filesContent.length === 0) return;
-
-    //     const file = filesContent[0]; // first selected file
-    //     const imageUrl = file.content; // base64 Data URL
-
-    //     FabricImage.fromURL(imageUrl).then((img) => {
-    //       img.set({
-    //         left: 100,
-    //         top: 100,
-    //         selectable: true,
-    //       });
-    //       img.scaleToWidth(150);
-    //       canvas.add(img);
-    //       canvas.setActiveObject(img);
-    //       canvas.renderAll();
-    //       console.log("Image added to canvas");
-    //     });
-
 
     return (
         <div className="toolbars-wrapper">

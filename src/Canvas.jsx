@@ -9,6 +9,9 @@ import Toolbar from './Toolbar'
 import { IconButton } from 'blocksin-system'
 import { SquareIcon, CircleIcon, TriangleIcon } from 'sebikostudio-icons'
 
+import { canvasDataJsonStore } from "./EmailStore";
+
+
 
 
 const CanvasBoard = forwardRef(({ id, initialJson }, ref) => {
@@ -16,7 +19,8 @@ const CanvasBoard = forwardRef(({ id, initialJson }, ref) => {
     const canvasRef = useRef(null)
     const [canvas, setCanvas] = useState(null)
     const [guidelines, setGuidelines] = useState([])
-    
+    const canvasFromJson = canvasDataJsonStore(store=>store.canvasJson)
+    console.log(canvasFromJson)
 
     useEffect(() => {
         if (canvasRef.current) {
@@ -25,13 +29,13 @@ const CanvasBoard = forwardRef(({ id, initialJson }, ref) => {
             setCanvas(initCanvas)
 
             // Only load JSON if it's present
-            if (initialJson && Object.keys(initialJson).length > 0) {
-                initCanvas.loadFromJSON(initialJson, () => {
-                    initCanvas.renderAll()
-                })
-            } else {
-                initCanvas.renderAll()
-            }
+            // if (initialJson && Object.keys(initialJson).length > 0) {
+            //     initCanvas.loadFromJSON(initialJson, () => {
+            //         initCanvas.renderAll()
+            //     })
+            // } else {
+            //     initCanvas.renderAll()
+            // }
 
             // Setup snapping
             initCanvas.on("object:moving", event => {

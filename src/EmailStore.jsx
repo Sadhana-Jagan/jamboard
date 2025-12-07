@@ -5,3 +5,12 @@ export const userStore = create((set)=>({
     addUser:(subID,emailID,username)=>set((state)=>({userDetail:{subID,emailID,username}}))
 }))
 
+export const tokenStore = create((set)=>({
+    tokenID:"",
+    addToken:(tokenID)=>set((state)=>({tokenID:tokenID}))
+}))
+
+export const canvasDataJsonStore = create((set)=>({
+    canvasJson:{},
+    addCanvasData:(canvasJson)=>set((state)=>({canvasJson:canvasJson}))
+}))

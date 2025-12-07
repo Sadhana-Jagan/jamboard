@@ -12,11 +12,13 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.917.0",
     "blocksin-system": "^1.6.3",
+    "client-dynamodb": "github:aws-sdk/client-dynamodb",
     "fabric": "^6.7.1",
     "ffmpeg": "^0.0.4",
     "fs": "^0.0.1-security",
     "fs-extra": "^11.3.2",
     "jwt-decode": "^4.0.0",
+    "lib-dynamodb": "github:aws-sdk/lib-dynamodb",
     "lodash": "^4.17.21",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
