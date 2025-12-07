@@ -1,16 +1,12 @@
 import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react'
 import './canvas.css'
-import { Canvas, Circle, Rect, Triangle } from "fabric"
+import { Canvas } from "fabric"
 
 import Settings from './Settings'
 import CanvasSettings from './canvasSettings'
 import { handleObjectMoving, clearGuidelines } from './SnappingHelper'
 import Toolbar from './Toolbar'
-import { IconButton } from 'blocksin-system'
-import { SquareIcon, CircleIcon, TriangleIcon } from 'sebikostudio-icons'
-
 import { canvasDataJsonStore } from "./EmailStore";
-
 
 
 
@@ -21,21 +17,16 @@ const CanvasBoard = forwardRef(({ id, initialJson }, ref) => {
     const [guidelines, setGuidelines] = useState([])
     const canvasFromJson = canvasDataJsonStore(store=>store.canvasJson)
     console.log(canvasFromJson)
+    
 
     useEffect(() => {
         if (canvasRef.current) {
             const initCanvas = new Canvas(canvasRef.current)
             initCanvas.backgroundColor = "#fff"
             setCanvas(initCanvas)
-
-            // Only load JSON if it's present
-            // if (initialJson && Object.keys(initialJson).length > 0) {
-            //     initCanvas.loadFromJSON(initialJson, () => {
-            //         initCanvas.renderAll()
-            //     })
-            // } else {
-            //     initCanvas.renderAll()
-            // }
+            
+            initCanvas.renderAll()
+            
 
             // Setup snapping
             initCanvas.on("object:moving", event => {
@@ -52,6 +43,11 @@ const CanvasBoard = forwardRef(({ id, initialJson }, ref) => {
         }
     }, [])
 
+    useEffect(()=>{
+        if(!canvas) return
+        if(!canvasFromJson) return
+        canvas.loadFromJSON(canvasFromJson).then(() => { canvas.renderAll() })
+    },[canvas,canvasFromJson])
 
     useImperativeHandle(ref, () => ({
         getCanvas: () => canvas
