@@ -4,15 +4,16 @@ import "./settings.css"
 import { RiUnderline, RiBold, RiStrikethrough, RiItalic } from 'react-icons/ri';
 import { FaPlus, FaMinus } from 'react-icons/fa';
 import { util } from "fabric";
-import { userStore, tokenStore, canvasDataJsonStore } from "./EmailStore";
+import { userStore,tokenStore, canvasDataJsonStore } from "./EmailStore";
 
 
 const wsUrl = import.meta.env.VITE_WEBSOCKET_URL;
 
 
 
-export default function Settings({ canvas }) {
+export default function Settings({ canvas, isCanvasReady }) {
     const wsRef = useRef(null)
+    const updatingCounter = useRef(0)
 
     const [selectedObject, setSelectedObject] = useState(null)
     const [color, setColor] = useState("#000000")
@@ -45,7 +46,7 @@ export default function Settings({ canvas }) {
     // console.log("token:",token)
 
 
-    function handleCanvasToJson() {
+    function handleCanvasToJson(){
         const canvasJson = canvas.toJSON();
         canvasDataJsonStore.getState().addCanvasData(canvasJson)
     }
@@ -129,36 +130,46 @@ export default function Settings({ canvas }) {
             window.removeEventListener("keydown", handleKeyDown);
         };
     }, [canvas])
-    const token = tokenStore(store => store.tokenID)
+    const token = tokenStore(store=>store.tokenID)
     useEffect(() => {
         if (!canvas) return
-        // if (!token) return
+        if(!token) return
+        if (!isCanvasReady) {
+            return
+        }
         const handleMove = (e) => {
             if (e.target === selectedObject) {
                 updatePanelPosition(e.target)
             }
         }
         canvas.on("object:added", () => {
+            if (updatingCounter.current > 0) {
+                return
+            }
             handleCanvasToJson()
             sendMessage()
             // else return
 
         })
         canvas.on("object:removed", () => {
-            // handleCanvasToJson()
+            if (updatingCounter.current > 0) return
+            handleCanvasToJson()
             // sendMessage()
         })
         canvas.on("object:modified", () => {
-            // handleCanvasToJson()
-            // sendMessage()
+            if (updatingCounter.current > 0) return
+            handleCanvasToJson()
+            sendMessage()
         })
         canvas.on("object:moving", (e) => {
-            // handleCanvasToJson()
+            if (updatingCounter.current > 0) return
+            handleCanvasToJson()
             handleMove(e)
             // sendMessageThrottled()
         })
         canvas.on("object:scaling", (e) => {
-            // handleCanvasToJson()
+            if (updatingCounter.current > 0) return
+            handleCanvasToJson()
             handleScaling(e.target)
             // sendMessage()
             // sendMessageThrottled()
@@ -175,7 +186,7 @@ export default function Settings({ canvas }) {
             canvas.off("object:rotating");
         }
 
-    }, [canvas, selectedObject])
+    }, [canvas, selectedObject, token, isCanvasReady])
 
 
 
@@ -186,7 +197,7 @@ export default function Settings({ canvas }) {
         // console.log(wsUrl)
 
         const wsUrlWithToken = `${wsUrl}?token=${token}`;
-        if (!token) {
+        if(!token){
             return;
         }
 
@@ -210,21 +221,10 @@ export default function Settings({ canvas }) {
     }, [token])
 
     useEffect(() => {
-        if (!canvas) return; // fabric canvas or whatever you’re using
-
-        const id = setInterval(() => {
-            handleCanvasToJson()
-        }, 30_000); // 30 sec
-
-        return () => clearInterval(id); // cleanup on unmount or canvas change
-    }, [canvas]);
-
-    useEffect(() => {
-        if (!token) return
+        if(!token) return
         wsRef.current.onmessage = (event) => {
 
             let dataParsed
-            // console.log("inside onmessage");
             try {
                 dataParsed = JSON.parse(event.data)
             } catch (err) {
@@ -232,36 +232,24 @@ export default function Settings({ canvas }) {
                 return
             }
             const canvasDataJson = dataParsed.data.message
-            console.log(canvasDataJson)
 
             if (canvas) {
-                // console.log("entered the condition")
-                canvas.off("object:added")
-                // canvas.off("object:modified")
-                // canvas.off("object:scaling")
-
-
-                canvas.loadFromJSON(canvasDataJson).then(() => { canvas.renderAll() })
-                // canvas.loadFromJSON(canvasDataJson, canvas.renderAll.bind(canvas));
-
-
-                // canvas.loadFromJSON(canvasDataJson, () => {
-                //     canvas.renderAll();
-                //     console.log("✅ All objects (including images) loaded and rendered");
-                // });
-                canvas.on("object:added");
-                // canvas.on("object:modified");
-                // canvas.on("object:scaling")
+                updatingCounter.current += 1
+                canvas.loadFromJSON(canvasDataJson).then(() => {
+                    canvas.renderAll()
+                    updatingCounter.current -= 1
+                }).catch((err) => {
+                    console.error("Error loading JSON", err)
+                    updatingCounter.current -= 1
+                })
                 return
             }
 
         }
-    }, [canvas, token])
+    }, [canvas,token])
 
     const sendMessage = () => {
-        // const canvasJson = canvas.toJSON()
-        handleCanvasToJson()
-        const canvasJson = canvasDataJsonStore(store=>store.canvasJson)
+        const canvasJson = canvas.toJSON()
         console.log("sending message")
         // console.log(canvasJson)
         const jsonToSend = { "action": "sendMessage", "message": canvasJson }
@@ -564,8 +552,6 @@ export default function Settings({ canvas }) {
                 </div>
             )}
         </div>
-
-
 
     )
 }

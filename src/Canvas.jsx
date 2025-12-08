@@ -15,8 +15,8 @@ const CanvasBoard = forwardRef(({ id, initialJson }, ref) => {
     const canvasRef = useRef(null)
     const [canvas, setCanvas] = useState(null)
     const [guidelines, setGuidelines] = useState([])
+    const [isCanvasReady, setIsCanvasReady] = useState(false)
     const canvasFromJson = canvasDataJsonStore(store=>store.canvasJson)
-    console.log(canvasFromJson)
 
 
     useEffect(() => {
@@ -56,6 +56,7 @@ const CanvasBoard = forwardRef(({ id, initialJson }, ref) => {
             canvas.backgroundColor = "#fff"
             canvas.renderAll()
             isLoadedRef.current = true
+            setIsCanvasReady(true)
         })
     }, [canvasFromJson])
     useImperativeHandle(ref, () => ({
@@ -69,7 +70,7 @@ const CanvasBoard = forwardRef(({ id, initialJson }, ref) => {
             <Toolbar canvas={canvas}/>
             <canvas className='canvas' ref={canvasRef} width={1100} height={650} />
 
-            <Settings className='settings' canvas={canvas} onMouseDown={(e) => e.stopPropagation()} />
+            <Settings className='settings' canvas={canvas} isCanvasReady={isCanvasReady} onMouseDown={(e) => e.stopPropagation()} />
             {/* <CanvasSettings canvas={canvas} /> */}
 
         </div>
