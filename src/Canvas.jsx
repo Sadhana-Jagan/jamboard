@@ -17,16 +17,16 @@ const CanvasBoard = forwardRef(({ id, initialJson }, ref) => {
     const [guidelines, setGuidelines] = useState([])
     const canvasFromJson = canvasDataJsonStore(store=>store.canvasJson)
     console.log(canvasFromJson)
-    
+
 
     useEffect(() => {
         if (canvasRef.current) {
             const initCanvas = new Canvas(canvasRef.current)
             initCanvas.backgroundColor = "#fff"
             setCanvas(initCanvas)
-            
+
             initCanvas.renderAll()
-            
+
 
             // Setup snapping
             initCanvas.on("object:moving", event => {
@@ -43,23 +43,31 @@ const CanvasBoard = forwardRef(({ id, initialJson }, ref) => {
         }
     }, [])
 
-    useEffect(()=>{
-        if(!canvas) return
-        if(!canvasFromJson) return
-        canvas.loadFromJSON(canvasFromJson).then(() => { canvas.renderAll() })
-    },[canvas,canvasFromJson])
+    const isLoadedRef = useRef(false)
+
+    useEffect(() => {
+        if (!canvas) return
+        if (!canvasFromJson || Object.keys(canvasFromJson).length === 0) return
+        if (isLoadedRef.current) return
+
+        canvas.loadFromJSON(canvasFromJson).then(() => {
+            canvas.backgroundColor = "#fff"
+            canvas.renderAll()
+            isLoadedRef.current = true
+        })
+    }, [canvas, canvasFromJson])
 
     useImperativeHandle(ref, () => ({
         getCanvas: () => canvas
     }))
 
-    
+
 
     return (
         <div className='app'>
             <Toolbar canvas={canvas}/>
-            <canvas className='canvas' ref={canvasRef} width={1100} height={650}/>
-        
+            <canvas className='canvas' ref={canvasRef} width={1100} height={650} />
+
             <Settings className='settings' canvas={canvas} onMouseDown={(e) => e.stopPropagation()} />
             {/* <CanvasSettings canvas={canvas} /> */}
 
