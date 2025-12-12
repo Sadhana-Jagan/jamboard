@@ -49,14 +49,15 @@ const CanvasBoard = forwardRef(({ id, initialJson }, ref) => {
         if (!canvas) return
         if (!canvasFromJson || Object.keys(canvasFromJson).length === 0) return
         if (isLoadedRef.current) return
+        
+        
 
         canvas.loadFromJSON(canvasFromJson).then(() => {
             canvas.backgroundColor = "#fff"
             canvas.renderAll()
             isLoadedRef.current = true
         })
-    }, [canvas, canvasFromJson])
-
+    }, [canvasFromJson])
     useImperativeHandle(ref, () => ({
         getCanvas: () => canvas
     }))

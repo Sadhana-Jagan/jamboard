@@ -14,3 +14,8 @@ export const canvasDataJsonStore = create((set)=>({
     canvasJson:{},
     addCanvasData:(canvasJson)=>set((state)=>({canvasJson:canvasJson}))
 }))
+
+export const collabStore = create((set)=>({
+    collabList:[],
+    addCollabList:(item)=>set((state) => ({collabList: [...state.collabList, item]}))
+}))

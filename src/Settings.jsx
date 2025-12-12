@@ -4,7 +4,7 @@ import "./settings.css"
 import { RiUnderline, RiBold, RiStrikethrough, RiItalic } from 'react-icons/ri';
 import { FaPlus, FaMinus } from 'react-icons/fa';
 import { util } from "fabric";
-import { userStore,tokenStore, canvasDataJsonStore } from "./EmailStore";
+import { userStore, tokenStore, canvasDataJsonStore } from "./EmailStore";
 
 
 const wsUrl = import.meta.env.VITE_WEBSOCKET_URL;
@@ -37,15 +37,15 @@ export default function Settings({ canvas }) {
     // const userSub = userStore(store=>store.userDetail.subID)
     // const username = userStore(store=>store.userDetail.username)
 
-    
-        
+
+
     // console.log("email: ",userEmail)
     // console.log("sub: ",userSub)
     // console.log("username: ",username)
     // console.log("token:",token)
-    
-    
-    function handleCanvasToJson(){
+
+
+    function handleCanvasToJson() {
         const canvasJson = canvas.toJSON();
         canvasDataJsonStore.getState().addCanvasData(canvasJson)
     }
@@ -79,8 +79,8 @@ export default function Settings({ canvas }) {
         }
 
         if (canvas) {
-            
-            
+
+
 
             canvas.on("selection:created", (event) => {
                 handleObjectSelection(event.selected[0])
@@ -106,7 +106,7 @@ export default function Settings({ canvas }) {
                     // sendMessageThrottled()
                 }
             })
-            
+
 
 
         }
@@ -129,10 +129,10 @@ export default function Settings({ canvas }) {
             window.removeEventListener("keydown", handleKeyDown);
         };
     }, [canvas])
-    const token = tokenStore(store=>store.tokenID)
+    const token = tokenStore(store => store.tokenID)
     useEffect(() => {
         if (!canvas) return
-        if(!token) return
+        // if (!token) return
         const handleMove = (e) => {
             if (e.target === selectedObject) {
                 updatePanelPosition(e.target)
@@ -145,20 +145,20 @@ export default function Settings({ canvas }) {
 
         })
         canvas.on("object:removed", () => {
-            handleCanvasToJson()
+            // handleCanvasToJson()
             // sendMessage()
         })
         canvas.on("object:modified", () => {
-            handleCanvasToJson()
-            sendMessage()
+            // handleCanvasToJson()
+            // sendMessage()
         })
         canvas.on("object:moving", (e) => {
-            handleCanvasToJson()
+            // handleCanvasToJson()
             handleMove(e)
             // sendMessageThrottled()
         })
         canvas.on("object:scaling", (e) => {
-            handleCanvasToJson()
+            // handleCanvasToJson()
             handleScaling(e.target)
             // sendMessage()
             // sendMessageThrottled()
@@ -175,21 +175,21 @@ export default function Settings({ canvas }) {
             canvas.off("object:rotating");
         }
 
-    }, [canvas, selectedObject,token])
+    }, [canvas, selectedObject])
 
-    
+
 
     useEffect(() => {
         // if(!canvas){
         //     return 
         // }
         // console.log(wsUrl)
-        
+
         const wsUrlWithToken = `${wsUrl}?token=${token}`;
-        if(!token){
+        if (!token) {
             return;
         }
-        
+
         const ws = new WebSocket(wsUrlWithToken)
         //connection open
         ws.onopen = () => {
@@ -210,9 +210,19 @@ export default function Settings({ canvas }) {
     }, [token])
 
     useEffect(() => {
-        if(!token) return
+        if (!canvas) return; // fabric canvas or whatever you’re using
+
+        const id = setInterval(() => {
+            handleCanvasToJson()
+        }, 30_000); // 30 sec
+
+        return () => clearInterval(id); // cleanup on unmount or canvas change
+    }, [canvas]);
+
+    useEffect(() => {
+        if (!token) return
         wsRef.current.onmessage = (event) => {
-            
+
             let dataParsed
             // console.log("inside onmessage");
             try {
@@ -246,10 +256,12 @@ export default function Settings({ canvas }) {
             }
 
         }
-    }, [canvas,token])
+    }, [canvas, token])
 
     const sendMessage = () => {
-        const canvasJson = canvas.toJSON()
+        // const canvasJson = canvas.toJSON()
+        handleCanvasToJson()
+        const canvasJson = canvasDataJsonStore(store=>store.canvasJson)
         console.log("sending message")
         // console.log(canvasJson)
         const jsonToSend = { "action": "sendMessage", "message": canvasJson }
@@ -552,6 +564,8 @@ export default function Settings({ canvas }) {
                 </div>
             )}
         </div>
+
+
 
     )
 }

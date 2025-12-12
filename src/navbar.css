@@ -13,6 +13,7 @@ body{
     display: flex;
     flex-direction: row;
     gap:50px;
+   justify-content: center;
 }
 
 
@@ -31,17 +32,24 @@ body{
 
 .profile-pic{
     margin-left: auto;
-    margin-top: 23px;
-    
+    height: 100%;
     display: flex;
     flex-direction: row;
     gap:20px;
+    align-items: center;
 }
 
 .profile-pic-img{
     width: 35px;
     height: 35px;
     padding-right: 30px;
+}
+
+.collaborator{
+    background-color: #FFD80A;
+    height: 40px;
+    width: 150px;
+    border-radius: 5px;
 }
 
 .center-p{
@@ -71,4 +79,38 @@ body{
     height: 50px;
     width: 100px;
     border-radius: 5px;
+}
+
+.collab-hover{
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    width: 23%;
+    height: 80px;
+    position: absolute;
+    top:70px;
+    left: 75%;
+    background-color: #F6BE5D ;
+    border-radius: 5px;
+    align-items: center;
+    z-index: 3;
+}
+
+.collab-hover input{
+    /* margin-top: 10px; */
+    margin-left: 10px;
+    width: 82%;
+    height: 50px;
+
+    background-color: #d3d3d3;
+    border-radius: 5px;
+}
+
+.collab-hover button{
+    background-color: #F7810A;
+    border-radius: 5px;
+    width: 20%;
+    height: 50px;
+    margin-right: 10px;
+
 }
