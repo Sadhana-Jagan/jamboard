@@ -48,6 +48,7 @@ export default function Settings({ canvas, isCanvasReady }) {
 
     function handleCanvasToJson(){
         const canvasJson = canvas.toJSON();
+        console.log("check")
         canvasDataJsonStore.getState().addCanvasData(canvasJson)
     }
     const updatePanelPosition = (object) => {
@@ -154,7 +155,7 @@ export default function Settings({ canvas, isCanvasReady }) {
         canvas.on("object:removed", () => {
             if (updatingCounter.current > 0) return
             handleCanvasToJson()
-            // sendMessage()
+            sendMessage()
         })
         canvas.on("object:modified", () => {
             if (updatingCounter.current > 0) return
@@ -220,6 +221,17 @@ export default function Settings({ canvas, isCanvasReady }) {
         };
     }, [token])
 
+    // useEffect(() => {
+    //     if(!token) return
+    //     if (!canvas) return; // fabric canvas or whatever you’re using
+
+    //     const id = setInterval(() => {
+    //         handleCanvasToJson()
+    //     }, 30_000); // 30 sec
+
+    //     return () => clearInterval(id); // cleanup on unmount or canvas change
+    // }, [canvas]);
+
     useEffect(() => {
         if(!token) return
         wsRef.current.onmessage = (event) => {
@@ -235,6 +247,7 @@ export default function Settings({ canvas, isCanvasReady }) {
 
             if (canvas) {
                 updatingCounter.current += 1
+                handleCanvasToJson()
                 canvas.loadFromJSON(canvasDataJson).then(() => {
                     canvas.renderAll()
                     updatingCounter.current -= 1
