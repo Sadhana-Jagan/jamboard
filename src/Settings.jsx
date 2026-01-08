@@ -149,6 +149,7 @@ export default function Settings({ canvas, isCanvasReady }) {
             if (updatingCounter.current > 0) {
                 return
             }
+            console.log("entering send")
             handleCanvasToJson()
             sendMessage()
             // else return
