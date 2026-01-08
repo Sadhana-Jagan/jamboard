@@ -36,8 +36,8 @@ export default function NavBar() {
 
     }
     async function handleLogout(){
-        console.log("check")
-        console.log(canvasJson)
+        // console.log("check")
+        // console.log(canvasJson)
         const res = await fetch("https://gbuzj6ybed.execute-api.us-east-2.amazonaws.com/saveCanvas",{
             method:"POST",
             headers:{

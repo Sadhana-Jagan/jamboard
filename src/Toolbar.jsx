@@ -29,7 +29,7 @@ const handleImageUpload = (e, canvas) => {
         const keyS3 = `${Date.now()}_${file.name}`
         const arrayBuffer = await file.arrayBuffer();
         const uint8Array = new Uint8Array(arrayBuffer);
-        console.log(uint8Array)
+        // console.log(uint8Array)
         const jsonS3 = {
             ACL: "public-read",
             Body: uint8Array,

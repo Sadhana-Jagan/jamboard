@@ -22,7 +22,6 @@ export default function AuthCallback() {
         const params = new URLSearchParams(location.search)
         const authCode = params.get("code")
         if (authCode) {
-            // console.log("code", authCode)
             navigate("/jamboard")
         }
         async function getTokenExchange() {
@@ -58,7 +57,7 @@ export default function AuthCallback() {
                         addCanvasJson({}) 
                         return
                     }
-                    console.log("fetch success")
+                    // console.log("fetch success")
                     const jsonResponse = await res.json()
                     const canvasJsonResponse = jsonResponse.canvas
                     //console.log("canvas json: ",canvasJsonResponse)

@@ -138,18 +138,18 @@ export default function Settings({ canvas, isCanvasReady }) {
         if (!isCanvasReady) {
             return
         }
-        console.log("check")
+        // console.log("check")
         const handleMove = (e) => {
             if (e.target === selectedObject) {
                 updatePanelPosition(e.target)
             }
         }
         canvas.on("object:added", () => {
-            console.log("object added")
+            // console.log("object added")
             if (updatingCounter.current > 0) {
                 return
             }
-            console.log("entering send")
+            // console.log("entering send")
             handleCanvasToJson()
             sendMessage()
             // else return
@@ -208,7 +208,7 @@ export default function Settings({ canvas, isCanvasReady }) {
         const ws = new WebSocket(wsUrlWithToken)
         //connection open
         ws.onopen = () => {
-            console.log("websocket check")
+            // console.log("websocket check")
             console.log("connection opened")
         }
 
