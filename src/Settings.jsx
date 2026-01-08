@@ -138,12 +138,14 @@ export default function Settings({ canvas, isCanvasReady }) {
         if (!isCanvasReady) {
             return
         }
+        console.log("check")
         const handleMove = (e) => {
             if (e.target === selectedObject) {
                 updatePanelPosition(e.target)
             }
         }
         canvas.on("object:added", () => {
+            console.log("object added")
             if (updatingCounter.current > 0) {
                 return
             }

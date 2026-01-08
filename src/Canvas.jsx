@@ -47,7 +47,7 @@ const CanvasBoard = forwardRef(({ id, initialJson }, ref) => {
 
     useEffect(() => {
         if (!canvas) return
-        if (!canvasFromJson || Object.keys(canvasFromJson).length === 0) return
+        if (!canvasFromJson) return
         if (isLoadedRef.current) return
         
         
